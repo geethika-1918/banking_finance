@@ -46,7 +46,7 @@ pipeline{
     
      stage('Push the Docker image') {
       steps {
-        sh 'docker push geethikal03/bankingproject:latest'
+        sh 'docker push geethikal03/myimage:latest'
                   }
             }
         stage('port expose'){
