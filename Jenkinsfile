@@ -32,6 +32,23 @@ pipeline{
           steps{
                sh 'docker build -t myimage .'
            }
+
+          }
+     stage('Login to Dockerhub') {
+      steps {
+             withCredentials([usernamePassword(credentialsId: 'dockeruser', passwordVariable: 'password', usernameVariable: 'username')]) {
+          // withCredentials([usernameColonPassword(credentialsId: 'docker-id-user', variable: 'docker-all')]) {
+          // withCredentials([string(credentialsId: 'dockercode', variable: 'dockervarcode')]) {
+           sh 'docker login -u geethikal03 -p ${password}'
+                         }
+                   }
+               }        
+    
+     stage('Push the Docker image') {
+      steps {
+        sh 'docker push geethikal03/healthcare:latest'
+                  }
+            }
          }
         stage('port expose'){
             steps{
