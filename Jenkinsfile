@@ -1,58 +1,63 @@
-pipeline{
+pipeline {
     agent any
-    stages{
-        stage('checkout the code from github'){
-            steps{
-                 git url: 'https://github.com/geethika-1918/banking_finance/'
-                 echo 'github url checkout'
+    stages {
+        stage('Checkout the Code from GitHub') {
+            steps {
+                git url: 'https://github.com/geethika-1918/banking_finance/'
+                echo 'GitHub repository checked out'
             }
         }
-        stage('codecompile'){
-            steps{
-                echo 'starting compiling'
+
+        stage('Code Compilation') {
+            steps {
+                echo 'Starting compilation'
                 sh 'mvn compile'
             }
         }
-        stage('codetesting'){
-            steps{
+
+        stage('Code Testing') {
+            steps {
                 sh 'mvn test'
             }
         }
-        stage('qa'){
-            steps{
+
+        stage('QA') {
+            steps {
                 sh 'mvn checkstyle:checkstyle'
             }
         }
-        stage('package'){
-            steps{
+
+        stage('Package') {
+            steps {
                 sh 'mvn package'
             }
         }
-        stage('run dockerfile'){
-          steps{
-               sh 'docker build -t myimage .'
-           }
 
-          }
-     stage('Login to Dockerhub') {
-      steps {
-             withCredentials([usernamePassword(credentialsId: 'docker', passwordVariable: 'password', usernameVariable: 'username')]) {
-          // withCredentials([usernameColonPassword(credentialsId: 'docker-id-user', variable: 'docker-all')]) {
-          // withCredentials([string(credentialsId: 'dockercode', variable: 'dockervarcode')]) {
-           sh 'docker login -u geethikal03 -p ${password}'
-                         }
-                   }
-               }        
-    
-     stage('Push the Docker image') {
-      steps {
-        sh 'docker push geethikal03/myimage:latest'
-                  }
+        stage('Build Docker Image') {
+            steps {
+                sh 'docker build -t myimage .'
             }
-        stage('port expose'){
-            steps{
+        }
+
+        stage('Login to DockerHub') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'docker', passwordVariable: 'password', usernameVariable: 'username')]) {
+                    sh 'echo "$password" | docker login -u "$username" --password-stdin'
+                }
+            }
+        }
+
+        stage('Tag and Push Docker Image') {
+            steps {
+                sh 'docker tag myimage geethikal03/myimage:latest'
+                sh 'docker push geethikal03/myimage:latest'
+            }
+        }
+
+        stage('Run Docker Container') {
+            steps {
                 sh 'docker run -dt -p 8091:8091 --name c000 myimage'
             }
-        }   
+        }
     }
 }
